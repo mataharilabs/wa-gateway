@@ -1,9 +1,15 @@
 FROM node:20-slim
 
+# git: Baileys menarik dependensi (libsignal) dari GitHub.
+# python3/make/g++: untuk kompilasi native addon (node-gyp) bila diperlukan.
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends git ca-certificates python3 make g++ \
+  && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
 
 # Install deps dulu (cache layer)
-COPY package.json ./
+COPY package.json package-lock.json* ./
 RUN npm install --omit=dev
 
 COPY src ./src
