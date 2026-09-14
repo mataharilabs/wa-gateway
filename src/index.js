@@ -1,5 +1,5 @@
 import express from "express";
-import { start, getStatus, getQr, sendText, logout } from "./wa.js";
+import { start, getStatus, getQr, sendText, logout, listGroups } from "./wa.js";
 
 const PORT = process.env.PORT || 8080;
 const API_KEY = process.env.GATEWAY_API_KEY || "";
@@ -23,6 +23,14 @@ app.use((req, res, next) => {
 app.get("/status", (_req, res) => res.json(getStatus()));
 
 app.get("/qr", (_req, res) => res.json(getQr()));
+
+app.get("/groups", async (_req, res) => {
+  try {
+    res.json({ groups: await listGroups() });
+  } catch (e) {
+    res.status(502).json({ error: e.message || "Gagal memuat grup" });
+  }
+});
 
 app.post("/send", async (req, res) => {
   const { to, message } = req.body || {};

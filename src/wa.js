@@ -103,9 +103,18 @@ export async function sendText(to, message) {
   if (!state.sock || !state.connected) {
     throw new Error("WhatsApp belum tersambung");
   }
-  const jid = normalizeJid(to);
+  // Bila sudah berupa JID (mis. grup ...@g.us), pakai apa adanya; selain itu normalisasi nomor.
+  const jid = String(to).includes("@") ? String(to) : normalizeJid(to);
   await state.sock.sendMessage(jid, { text: message });
   return { to: jid };
+}
+
+export async function listGroups() {
+  if (!state.sock || !state.connected) {
+    throw new Error("WhatsApp belum tersambung");
+  }
+  const map = await state.sock.groupFetchAllParticipating();
+  return Object.values(map).map((g) => ({ id: g.id, subject: g.subject }));
 }
 
 export async function logout() {
